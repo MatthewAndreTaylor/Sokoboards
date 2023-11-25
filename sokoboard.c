@@ -6,8 +6,9 @@
 typedef unsigned int BoardRow;
 
 BoardRow level[BOARD_SIZE] = {0};
-BoardRow box_positions[BOARD_SIZE] = {0};
 BoardRow goal_positions[BOARD_SIZE] = {0};
+
+BoardRow box_positions[BOARD_SIZE] = {0};
 int player_x = 1;
 int player_y = 1;
 
@@ -16,7 +17,7 @@ void printBoard(BoardRow board[BOARD_SIZE]) {
         for (int j = 0; j < BOARD_SIZE; j++) {
             printf("%d ", (board[i] >> j) & 1);
         }
-        printf("\n");
+        printf("%s", "\n");
     }
 }
 
@@ -187,7 +188,7 @@ static PyMethodDef BoardMethods[] = {
     {"string", (PyCFunction)string, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
 
-static struct PyModuleDef sokobanmodule = {PyModuleDef_HEAD_INIT, "sokoban_board",
+static struct PyModuleDef sokoboardmodule = {PyModuleDef_HEAD_INIT, "sokoban_board",
                                              NULL, -1, BoardMethods};
 
-PyMODINIT_FUNC PyInit_sokoban_board() { return PyModule_Create(&sokobanmodule); }
+PyMODINIT_FUNC PyInit_sokoban_board() { return PyModule_Create(&sokoboardmodule); }

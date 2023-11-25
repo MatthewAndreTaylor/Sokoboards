@@ -25,7 +25,7 @@ if __name__ == "__main__":
         "#  $     #",
         "#  @     #",
         "#        #",
-        "##       #",
+        "#        #",
         "#     *  #",
         "#  $     #",
         "#      * #",
@@ -47,3 +47,24 @@ if __name__ == "__main__":
                 sokoban.move(2)
             elif key.code == sokoban.term.KEY_RIGHT:
                 sokoban.move(3)
+
+
+
+import random
+def generate_random_board(size=10):
+    board = (['#' * size] +
+             ['#' + ''.join(random.choices(['#', ' '], [30, 70]) for _ in range(size - 2)) + '#' for _ in range(size - 2)] +
+             ['#' * size])
+
+    for _ in range(2):
+        y, x = random.randrange(1, size - 1), random.randrange(1, size - 1)
+        board[y] = board[y][:x] + '*' + board[y][x+1:]
+
+    for _ in range(2):
+        while True:
+            y, x = random.randrange(1, size - 1), random.randrange(1, size - 1)
+            if sum(1 for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)] if board[y + dy][x + dx] == '#') <= 1:
+                board[y] = board[y][:x] + '$' + board[y][x+1:]
+                break
+
+    return board
