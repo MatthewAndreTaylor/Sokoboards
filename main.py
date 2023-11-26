@@ -74,7 +74,7 @@ def genetic_algorithm(initial_board, population_size, generations):
 
 
 initial_board = [
-    '##########',
+    "##########",
     "#@       #",
     "#     $  #",
     "#        #",
@@ -85,7 +85,55 @@ initial_board = [
     "#      * #",
     "##########"
 ]
+# print(f"Generation {0}: Best Fitness = {fitness(initial_board)}")
+# best = genetic_algorithm(initial_board, 1000, 1)
 
-print(f"Generation {0}: Best Fitness = {fitness(initial_board)}")
-for line in genetic_algorithm(initial_board, 1000, 10):
-    print(f"\'{line}\',")
+# board_count = 3
+# f= open(f"boards/board{board_count}","w")
+# for line in best:
+#     f.write(line + '\n')
+# f.close()
+
+def generate_boards(config):
+    empty_cells = []
+    x, y = None, None
+    boxes = []
+    goals = []
+
+    for i in range(len(config)):
+        for j in range(len(config[i])):
+            if config[i][j] == ' ':
+                empty_cells.append((i, j))
+                new_board = [list(row) for row in config]
+                new_board[i][j] = '#'
+                yield [''.join(row) for row in new_board]
+            if config[i][j] == '@':
+                x, y = i, j
+            if config[i][j] == '$':
+                boxes.append((i, j))
+            if config[i][j] == '*':
+                goals.append((i, j))
+
+    for i, j in empty_cells:
+        new_board = [list(row) for row in config]
+        new_board[i][j] = '@'
+        new_board[x][y] = ' '
+        yield [''.join(row) for row in new_board]
+
+        for h, k in boxes:
+                new_board = [list(row) for row in config]
+                new_board[i][j] = '$'
+                new_board[h][k] = ' '
+                yield [''.join(row) for row in new_board]
+
+        for h, k in goals:
+                new_board = [list(row) for row in config]
+                new_board[i][j] = '*'
+                new_board[h][k] = ' '
+                yield [''.join(row) for row in new_board]
+                
+
+for board in generate_boards(initial_board):
+    for line in board:
+        print(line)
+    print(fitness(board))
