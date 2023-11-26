@@ -68,32 +68,7 @@ static PyObject *setup(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O", &input)) {
         return NULL;
     }
-    if (PyUnicode_Check(input)) {
-        const char *input_str = PyUnicode_AsUTF8(input);
-        int len = strlen(input_str);
-
-        if (len != BOARD_SIZE * BOARD_SIZE) {
-            PyErr_SetString(PyExc_ValueError, "Invalid string length");
-            return NULL;
-        }
-
-        int index = 0;
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                char c = input_str[index++];
-                if (c == '@') {
-                    player_x = j;
-                    player_y = i;
-                } else if (c == '$') {
-                    box_positions[i] |= (1 << j);
-                } else if (c == '*') {
-                    goal_positions[i] |= (1 << j);
-                } else if (c == '#') {
-                    level[i] |= (1 << j);
-                }
-            }
-        }
-    } else if (PyList_Check(input)) {
+    if (PyList_Check(input)) {
         int len = PyList_Size(input);
         if (len != BOARD_SIZE) {
             PyErr_SetString(PyExc_ValueError, "Invalid list length");

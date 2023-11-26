@@ -3,26 +3,42 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <set>
 
 #define BOARD_SIZE 10
 
 typedef unsigned int BoardRow;
 
 typedef struct {
-    BoardRow level[BOARD_SIZE] = {0};
-    BoardRow goal_positions[BOARD_SIZE] = {0};
+    BoardRow level[BOARD_SIZE];
+    BoardRow goal_positions[BOARD_SIZE];
 } BoardConfig;
 
 typedef struct {
-    BoardRow box_positions[BOARD_SIZE] = {0};
-    int player_x = 1;
-    int player_y = 1;
+    BoardRow box_positions[BOARD_SIZE];;
+    int player_x;
+    int player_y;
 } BoardMoves;
 
 bool operator==(const BoardMoves& lhs, const BoardMoves& rhs) {
-    return std::equal(std::begin(lhs.box_positions), std::end(lhs.box_positions), std::begin(rhs.box_positions))
-        && lhs.player_x == rhs.player_x
-        && lhs.player_y == rhs.player_y;
+    return lhs.player_x == rhs.player_x && 
+           lhs.player_y == rhs.player_y &&
+           std::equal(std::begin(lhs.box_positions), std::end(lhs.box_positions), std::begin(rhs.box_positions));
+}
+
+bool operator<(const BoardMoves& lhs, const BoardMoves& rhs) {
+    if (lhs.player_x != rhs.player_x) {
+        return lhs.player_x < rhs.player_x;
+    }
+    if (lhs.player_y != rhs.player_y) {
+        return lhs.player_y < rhs.player_y;
+    }
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        if (lhs.box_positions[i] != rhs.box_positions[i]) {
+            return lhs.box_positions[i] < rhs.box_positions[i];
+        }
+    }
+    return false;
 }
 
 class SokobanProblem {
@@ -79,36 +95,88 @@ public:
     }
 };
 
-bool breadthFirstSearch(SokobanProblem& problem) {
+size_t breadthFirstSearch(SokobanProblem& problem) {
     std::queue<BoardMoves> queue;
-    std::vector<BoardMoves> visited;
+    std::set<BoardMoves> visited;
+    size_t nodes_expanded = 0;
     queue.push(problem.start_state);
 
     for (; !queue.empty(); queue.pop()) {
         BoardMoves state = queue.front();
 
         if (problem.is_goal(state)) {
-            return true;
+            return nodes_expanded;
         }
 
-        auto it = std::find(visited.begin(), visited.end(), state);
+        auto it = visited.find(state);
         if (it == visited.end()) {
             std::vector<BoardMoves> successors = problem.successors(state);
-            visited.push_back(state);
+            nodes_expanded += 1;
+            visited.insert(state);
 
             for (const auto& next_state : successors) {
-                auto next_it = std::find(visited.begin(), visited.end(), next_state);
-                if (next_it == visited.end()) {
-                    queue.push(next_state);
-                }
+                queue.push(next_state);
             }
         }
     }
 
-    return false;
+    return 0;
+}
+
+SokobanProblem problem;
+
+static PyObject *fitness(PyObject *self, PyObject *args) {
+    PyObject *input;
+    if (!PyArg_ParseTuple(args, "O", &input)) {
+        return NULL;
+    }
+
+    if (PyList_Check(input)) {
+        int len = PyList_Size(input);
+        if (len != BOARD_SIZE) {
+            PyErr_SetString(PyExc_ValueError, "Invalid list length");
+            return NULL;
+        }
+
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            problem.problem_board.level[i] = 0;
+            problem.start_state.box_positions[i] = 0;
+            problem.problem_board.goal_positions[i] = 0;
+        }
+
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            PyObject *row_str = PyList_GetItem(input, i);
+            const char *row = PyUnicode_AsUTF8(row_str);
+
+            if (strlen(row) != BOARD_SIZE) {
+                PyErr_SetString(PyExc_ValueError, "Invalid string length");
+                return NULL;
+            }
+
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                char c = row[j];
+                if (c == '@') {
+                    problem.start_state.player_x = j;
+                    problem.start_state.player_y = i;
+                } else if (c == '$') {
+                    problem.start_state.box_positions[i] |= (1 << j);
+                } else if (c == '*') {
+                    problem.problem_board.goal_positions[i] |= (1 << j);
+                } else if (c == '#') {
+                    problem.problem_board.level[i] |= (1 << j);
+                }
+            }
+        }
+    } else {
+        PyErr_SetString(PyExc_TypeError, "Invalid argument type");
+        return NULL;
+    }
+
+    return PyLong_FromSize_t(breadthFirstSearch(problem));
 }
 
 static PyMethodDef ProblemMethods[] = {
+    {"fitness", (PyCFunction)fitness, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}};
 
 static struct PyModuleDef sokoproblemmodule = {PyModuleDef_HEAD_INIT, "sokoban_problem",
