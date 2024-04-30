@@ -1,54 +1,68 @@
 import random
 import sokoban_problem
 
+
 def fitness(board):
-    return sokoban_problem.fitness(board)
+    return sokoban_problem.path_len(board)
+
 
 def generate_boards(config):
     new_board = [list(row) for row in config]
     for i in range(len(config)):
         for j in range(len(config[i])):
-            if config[i][j] == ' ' and random.random() < 0.15:
-                new_board[i][j] = '#'
-            elif config[i][j] == '#' and random.random() > 0.1 and 0 < i < 9 and 0 < j < 9:
-                new_board[i][j] = ' '
-    
-    return [''.join(row) for row in new_board]
+            if config[i][j] == " " and random.random() < 0.15:
+                new_board[i][j] = "#"
+            elif (
+                config[i][j] == "#"
+                and random.random() > 0.1
+                and 0 < i < 9
+                and 0 < j < 9
+            ):
+                new_board[i][j] = " "
+
+    return ["".join(row) for row in new_board]
+
 
 def mutation(config):
     new_board = [list(row) for row in config]
     attempts = 0
     if random.random() > 0.5:
         while attempts < 10:
-            x, y = random.randrange(1,9), random.randrange(1,9)
-            if config[x][y] == ' ':
-                new_board[x][y] = '#'
+            x, y = random.randrange(1, 9), random.randrange(1, 9)
+            if config[x][y] == " ":
+                new_board[x][y] = "#"
                 break
-            attempts+=1
+            attempts += 1
     else:
         while attempts < 10:
-            x, y = random.randrange(1,9), random.randrange(1,9)
-            if config[x][y] == '#':
-                new_board[x][y] = ' '
+            x, y = random.randrange(1, 9), random.randrange(1, 9)
+            if config[x][y] == "#":
+                new_board[x][y] = " "
                 break
-            attempts+=1
-    
-    return [''.join(row) for row in new_board]
-    
-                
-                
+            attempts += 1
+
+    return ["".join(row) for row in new_board]
+
+
 def crossover(parent1, parent2):
     crossover_point = random.randint(0, len(parent1) - 1)
     child = parent1[:crossover_point] + parent2[crossover_point:]
     return child
 
+
 def genetic_algorithm(initial_board, population_size, generations):
-    population = [initial_board] + [generate_boards(initial_board) for _ in range(population_size)]
+    population = [initial_board] + [
+        generate_boards(initial_board) for _ in range(population_size)
+    ]
 
     for generation in range(generations):
         fitness_scores = [(board, fitness(board)) for board in population]
         fitness_scores.sort(key=lambda x: x[1], reverse=True)
-        parents = [board for board, score in fitness_scores[:population_size // 2] if score > 0]
+        parents = [
+            board
+            for board, score in fitness_scores[: population_size // 2]
+            if score > 0
+        ]
 
         # Generate offspring through crossover and mutation
         offspring = []
@@ -83,7 +97,7 @@ initial_board = [
     "#     *  #",
     "#  $     #",
     "#      * #",
-    "##########"
+    "##########",
 ]
 # print(f"Generation {0}: Best Fitness = {fitness(initial_board)}")
 # best = genetic_algorithm(initial_board, 1000, 1)
@@ -94,6 +108,7 @@ initial_board = [
 #     f.write(line + '\n')
 # f.close()
 
+
 def generate_boards(config):
     empty_cells = []
     x, y = None, None
@@ -102,36 +117,36 @@ def generate_boards(config):
 
     for i in range(len(config)):
         for j in range(len(config[i])):
-            if config[i][j] == ' ':
+            if config[i][j] == " ":
                 empty_cells.append((i, j))
                 new_board = [list(row) for row in config]
-                new_board[i][j] = '#'
-                yield [''.join(row) for row in new_board]
-            if config[i][j] == '@':
+                new_board[i][j] = "#"
+                yield ["".join(row) for row in new_board]
+            if config[i][j] == "@":
                 x, y = i, j
-            if config[i][j] == '$':
+            if config[i][j] == "$":
                 boxes.append((i, j))
-            if config[i][j] == '*':
+            if config[i][j] == "*":
                 goals.append((i, j))
 
     for i, j in empty_cells:
         new_board = [list(row) for row in config]
-        new_board[i][j] = '@'
-        new_board[x][y] = ' '
-        yield [''.join(row) for row in new_board]
+        new_board[i][j] = "@"
+        new_board[x][y] = " "
+        yield ["".join(row) for row in new_board]
 
         for h, k in boxes:
-                new_board = [list(row) for row in config]
-                new_board[i][j] = '$'
-                new_board[h][k] = ' '
-                yield [''.join(row) for row in new_board]
+            new_board = [list(row) for row in config]
+            new_board[i][j] = "$"
+            new_board[h][k] = " "
+            yield ["".join(row) for row in new_board]
 
         for h, k in goals:
-                new_board = [list(row) for row in config]
-                new_board[i][j] = '*'
-                new_board[h][k] = ' '
-                yield [''.join(row) for row in new_board]
-                
+            new_board = [list(row) for row in config]
+            new_board[i][j] = "*"
+            new_board[h][k] = " "
+            yield ["".join(row) for row in new_board]
+
 
 for board in generate_boards(initial_board):
     for line in board:

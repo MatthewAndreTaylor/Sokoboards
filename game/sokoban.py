@@ -1,24 +1,26 @@
 from blessed import Terminal
-import sokoban_board
+from sokoban_board import SokobanBoard
+
+
 class Sokoban:
-    def __init__(self):
+    def __init__(self, board):
         self.term = Terminal()
+        self.board = SokobanBoard(board)
 
     def draw(self):
         with self.term.cbreak(), self.term.hidden_cursor():
-            print(self.term.home + sokoban_board.string())
+            print(self.term.home + str(self.board))
 
     def move(self, direction):
-        sokoban_board.move(direction)
+        self.board.move(direction)
 
-        if sokoban_board.is_solved():
+        if self.board.is_solved():
             sokoban.draw()
             print("Congratulations! You solved the puzzle!")
             exit(0)
 
 
 if __name__ == "__main__":
-    sokoban = Sokoban()
     board = [
         "##########",
         "#     #  #",
@@ -31,7 +33,7 @@ if __name__ == "__main__":
         "#      * #",
         "##########",
     ]
-    sokoban_board.setup(board)
+    sokoban = Sokoban(board)
     print(sokoban.term.clear())
 
     with sokoban.term.cbreak():

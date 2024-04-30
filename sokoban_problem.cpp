@@ -125,7 +125,7 @@ size_t breadthFirstSearch(SokobanProblem& problem) {
 
 SokobanProblem problem;
 
-static PyObject *fitness(PyObject *self, PyObject *args) {
+static PyObject *path_len(PyObject *self, PyObject *args) {
     PyObject *input;
     if (!PyArg_ParseTuple(args, "O", &input)) {
         return NULL;
@@ -146,9 +146,15 @@ static PyObject *fitness(PyObject *self, PyObject *args) {
 
         for (int i = 0; i < BOARD_SIZE; i++) {
             PyObject *row_str = PyList_GetItem(input, i);
+            // Check if the row is a string
+            if (!PyUnicode_Check(row_str)) {
+                PyErr_SetString(PyExc_TypeError, "Invalid row type");
+                return NULL;
+            }
+
             const char *row = PyUnicode_AsUTF8(row_str);
 
-            if (strlen(row) != BOARD_SIZE) {
+            if (strnlen(row, BOARD_SIZE + 1) != BOARD_SIZE) {
                 PyErr_SetString(PyExc_ValueError, "Invalid string length");
                 return NULL;
             }
@@ -176,7 +182,7 @@ static PyObject *fitness(PyObject *self, PyObject *args) {
 }
 
 static PyMethodDef ProblemMethods[] = {
-    {"fitness", (PyCFunction)fitness, METH_VARARGS, NULL},
+    {"path_len", (PyCFunction)path_len, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}};
 
 static struct PyModuleDef sokoproblemmodule = {PyModuleDef_HEAD_INIT, "sokoban_problem",

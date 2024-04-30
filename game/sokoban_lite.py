@@ -1,5 +1,6 @@
 from blessed import Terminal
 
+
 class Sokoban:
     def __init__(self):
         self.term = Terminal()
@@ -46,13 +47,13 @@ class Sokoban:
             for y, row in enumerate(self.level):
                 for x, char in enumerate(row):
                     if (x, y) == self.player_pos:
-                        print(self.term.move(y, x) + '@', end='')
-                    elif self.box_positions[y][x] != ' ':
-                        print(self.term.move(y, x) + '$', end='')
-                    elif self.goal_positions[y][x] != ' ':
-                        print(self.term.move(y, x) + '*', end='')
+                        print(self.term.move(y, x) + "@", end="")
+                    elif self.box_positions[y][x] != " ":
+                        print(self.term.move(y, x) + "$", end="")
+                    elif self.goal_positions[y][x] != " ":
+                        print(self.term.move(y, x) + "*", end="")
                     else:
-                        print(self.term.move(y, x) + char, end='')
+                        print(self.term.move(y, x) + char, end="")
 
     def move(self, direction):
         x, y = self.player_pos
@@ -61,14 +62,14 @@ class Sokoban:
         new_x, new_y = x + dx, y + dy
         next_char = self.level[new_y][new_x]
 
-        if self.box_positions[new_y][new_x] != ' ':
+        if self.box_positions[new_y][new_x] != " ":
             box_x, box_y = new_x + dx, new_y + dy
             next_char = self.level[box_y][box_x]
-            if next_char == ' ':
-                self.box_positions[new_y][new_x] = ' '
+            if next_char == " ":
+                self.box_positions[new_y][new_x] = " "
                 self.player_pos = new_x, new_y
-                self.box_positions[box_y][box_x] = '#'
-        elif next_char == ' ':
+                self.box_positions[box_y][box_x] = "#"
+        elif next_char == " ":
             self.player_pos = (new_x, new_y)
 
         if sokoban.is_solved():
@@ -76,9 +77,9 @@ class Sokoban:
             print("Congratulations! You solved the puzzle!")
             exit(0)
 
-
     def is_solved(self):
         return self.box_positions == self.goal_positions
+
 
 if __name__ == "__main__":
     sokoban = Sokoban()
