@@ -45,9 +45,14 @@ initial_board = [
     "##########",
 ]
 
-path_len = sokoban_problem.path_len(initial_board)
+num_expanded = sokoban_problem.num_expanded(initial_board)
 
-print(f"Took {path_len} steps") # Took 7409 steps
+print(f"Took {num_expanded} steps") # Took 7409 steps
+
+path = sokoban_problem.path(initial_board)
+direction_map = {0: "Up", 1: "Down", 2: "Left", 3: "Right"}
+solution = list(map(direction_map.get, path))
+print(solution) # ['Right', 'Right', 'Right', 'Right', 'Right', 'Down', 'Down', 'Down', 'Down', 'Left', 'Down', 'Left', 'Left', 'Down', 'Left', 'Down', 'Right', 'Right', 'Right', 'Right']
 ```
 
 6. Checkout some of the work I did to randomly generate levels in  `/trials`

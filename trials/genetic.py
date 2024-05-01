@@ -3,7 +3,7 @@ import sokoban_problem
 
 
 def fitness(board):
-    return sokoban_problem.path_len(board)
+    return sokoban_problem.num_expanded(board)
 
 
 def generate_boards(config):

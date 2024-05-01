@@ -25,7 +25,7 @@ for i in range(20000):
             board[:y] + [board[y][:x] + "#" + board[y][x + 1 :]] + board[y + 1 :]
         )
 
-    if sokoban_problem.path_len(next_board) > 0:
+    if sokoban_problem.num_expanded(next_board) > 0:
         board = next_board
 
 
